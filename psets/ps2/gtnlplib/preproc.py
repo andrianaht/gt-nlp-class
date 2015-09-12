@@ -3,6 +3,7 @@ from collections import defaultdict, Counter
 import os.path
 from itertools import chain
 from constants import OFFSET
+import re
 
 def docsToBOWs(keyfile):
     if os.path.exists (keyfile):
@@ -12,14 +13,22 @@ def docsToBOWs(keyfile):
             for keyline in keys:
                 dataloc = keyline.rstrip().split(' ')[0]
                 dataloc = os.path.join (dirname, dataloc)
-                fcounts = defaultdict(int) 
-                with open(dataloc,'r') as infile:
+                fcounts = defaultdict(int)
+                with open(dataloc, 'r') as infile:
                     for line in infile: 
                         decoded = line.decode('ascii','ignore')
-                        # YOUR CODE HERE
-                for word,count in fcounts.items():
-                    print >>outfile,"{}:{}".format(word,count), #write the word and its count to a line
-                print >>outfile,""
+                        for sentence in sent_tokenize(decoded):
+                            for word in word_tokenize(sentence):
+                                if word > '' and not re.search('[^a-zA-Z]', word):
+                                    word = word.lower()
+                                    if word in fcounts:
+                                        fcounts[word] += 1
+                                    else:
+                                        fcounts[word] = 1
+
+                for word, count in fcounts.items():
+                    print >> outfile, "{}:{}".format(word, count), #write the word and its count to a line
+                print >> outfile, ""
 
 def dataIterator(keyfile,test_mode=False):
     """
@@ -35,10 +44,11 @@ def dataIterator(keyfile,test_mode=False):
                     label = 'UNK'
                 else:
                     textloc,label = keyline.rstrip().split(' ')
-                fcounts = {word:int(count) for word,count in\
-                           [x.split(':') for x in bows.readline().rstrip().split(' ')]}
+
+                fcounts = {word:int(count) for word, count in\
+                           [ x.split(':') for x in bows.readline().rstrip().split(' ')]}
                 fcounts[OFFSET] = 1
-                yield fcounts,label
+                yield fcounts, label
 
 def getAllCounts(datait):
     allcounts = Counter()

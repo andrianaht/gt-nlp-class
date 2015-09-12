@@ -29,6 +29,10 @@ def learnMCCWeights():
 
 def learnWLCWeights (poswords, negwords):
     weights_list = defaultdict(int)
-    # your code here
-    return weights_list
 
+    for word in poswords:
+        weights_list.update({('POS', word): 1})
+
+    for word in negwords:
+        weights_list.update({('NEG', word): 1})
+    return weights_list
