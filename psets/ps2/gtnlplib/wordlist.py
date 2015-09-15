@@ -35,4 +35,7 @@ def learnWLCWeights (poswords, negwords):
 
     for word in negwords:
         weights_list.update({('NEG', word): 1})
+
+    # TODO: How about neutral?
+
     return weights_list

@@ -10,20 +10,18 @@ from gtnlplib.clf_base import evalClassifier
 # weights_all_pos.update({('POS',OFFSET):1,('NEG',OFFSET):0,('NEU',OFFSET):0})
 def learnNBWeights(counts, class_counts, allkeys, alpha=0.1):
     weights = defaultdict(int)
-    # v = 1.*sum([count for label in counts.keys() for count in counts[label].values()])
-    v = 1.*len(allkeys)-1
-    N = 1.*sum(class_counts.values())
+    vocabulary_len = 1.*len(allkeys)
+    corpus_len = 1.*sum(class_counts.values())
 
-    # log(p(y)) + log(p(w/y))you're lovely beside live in the world something is happening
     for label in counts.keys():
-        py = class_counts[label]/N
-        z = 1.*sum(counts[label].values())
+        prior = class_counts[label]/corpus_len
+        normilizer = 1.*sum(counts[label].values())
 
-        for word in allkeys - set(OFFSET):
-            pwy = (counts[label].get(word, 0) + alpha) / (z + alpha*v)
+        for word in allkeys:
+            pwy = (counts[label].get(word, 0) + alpha) / (normilizer + alpha * vocabulary_len)
             weights.update({(label, word): np.log(pwy)})
 
-        weights.update({(label, OFFSET): np.log(py)})
+        weights.update({(label, OFFSET): np.log(prior)})
 
     return weights
 

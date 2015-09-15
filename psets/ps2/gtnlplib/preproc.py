@@ -1,4 +1,4 @@
-from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk import word_tokenize, sent_tokenize
 from collections import defaultdict, Counter
 import os.path
 from itertools import chain
@@ -7,7 +7,7 @@ import re
 
 def docsToBOWs(keyfile):
     if os.path.exists (keyfile):
-        dirname = os.path.dirname (keyfile)
+        dirname = os.path.dirname(keyfile)
     with open(keyfile,'r') as keys:
         with open(keyfile.replace('.key','.bow'),'w') as outfile:
             for keyline in keys:
@@ -21,10 +21,7 @@ def docsToBOWs(keyfile):
                             for word in word_tokenize(sentence):
                                 if word > '' and not re.search('[^a-zA-Z]', word):
                                     word = word.lower()
-                                    if word in fcounts:
-                                        fcounts[word] += 1
-                                    else:
-                                        fcounts[word] = 1
+                                    fcounts[word] += 1
 
                 for word, count in fcounts.items():
                     print >> outfile, "{}:{}".format(word, count), #write the word and its count to a line

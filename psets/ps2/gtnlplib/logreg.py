@@ -8,11 +8,18 @@ import numpy as np
 import gtnlplib.scorer as scorer
 
 # compute the normalized probability of each label 
-def computeLabelProbs(instance,weights,labels):
-    print weights
-    # for word, value in instance.iteritems():
-    #     continue
-    pass
+def computeLabelProbs(instance, weights, labels):
+
+    probs = defaultdict(float)
+    normalizer = 0.
+
+    for lbl in labels:
+        for word, value in instance.iteritems():
+            probs[lbl] += np.exp(weights.get((lbl, word), 1) * value)
+            normalizer += np.exp(weights.get((lbl, word), 1) * value)
+
+    return {key: value/normalizer for key, value in probs.iteritems()}
+
 
 def trainLRbySGD(N_its,inst_generator, outfile, devkey, learning_rate=1e-4, regularizer=1e-2):
     weights = defaultdict(float)
@@ -30,16 +37,20 @@ def trainLRbySGD(N_its,inst_generator, outfile, devkey, learning_rate=1e-4, regu
     for it in xrange(N_its):
         tr_err = 0
         last_update = defaultdict(int) # reset, since we regularize at the end of every iteration
-        for i,(inst,true_label) in enumerate(inst_generator):
+        for i, (inst, true_label) in enumerate(inst_generator):
             # apply "just-in-time" regularization to the weights for features in this instance
-            regularize(inst,i)
+            regularize(inst, i)
             # compute likelihood gradient from this instance
-            probs = computeLabelProbs(inst,weights,ALL_LABELS)
+            probs = computeLabelProbs(inst, weights, ALL_LABELS)
+
             if true_label != argmax(probs): tr_err += 1
-            # your code for updating the weights goes here
+            # Code here
+            for (label, word), weight in weights.iteritems():
+                expectation = sum([probs[lbl] * inst.get(word, 0) for lbl in ALL_LABELS])
+                weights[(label, word)] = (1 - learning_rate*regularizer)*weight + len(inst_generator) * learning_rate * (inst.get(word, 0) - expectation)
 
         # regularize all features at the end of each iteration
-        regularize([base_feature for label,base_feature in weights.keys()],i)
+        regularize([base_feature for label,base_feature in weights.keys()], i)
         
         dv_acc[it] = scorer.accuracy(evalClassifier(weights, outfile, devkey))
         tr_acc[it] = 1. - tr_err/float(i)

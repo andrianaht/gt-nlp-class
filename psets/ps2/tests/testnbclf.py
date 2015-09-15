@@ -37,15 +37,13 @@ def test_nb_prediction_actual_label ():
     expected = "NEG"
     eq_ (expected, actual, msg="UNEQUAL Expected:%s, Actual:%s" %(expected, actual))
 
-def test_nb_prediction_scores_for_negative_label ():
-    actual = predict ({'good':1,'worst':4,OFFSET:1}, weights_nb, ALL_LABELS)[1]["NEG"]
-    expected = -31.0825
-    assert_almost_equals (expected, actual, places=3, msg="UNEQUAL Expected:%f, Actual:%f" %(expected, actual))
-
-def test_nb_prediction_scores_for_positive_label ():
-    actual = predict ({'good':1,'worst':4,OFFSET:1}, weights_nb, ALL_LABELS)[1]["POS"]
-    expected = -39.8792
-    assert_almost_equals (expected, actual, places=3, msg="UNEQUAL Expected:%f, Actual:%f" %(expected, actual))
+def test_nb_likelihood_ratio ():
+    expected = 8.7916
+    instance = {'good':1,'worst':4,OFFSET:1}
+    pos_likelihood = predict (instance, weights_nb, ALL_LABELS)[1]["POS"]
+    neg_likelihood = predict (instance, weights_nb, ALL_LABELS)[1]["NEG"]
+    actual = neg_likelihood - pos_likelihood
+    assert_almost_equals(expected, actual, places=3, msg="UNEQUAL Expected:%f, Actual:%f" %(expected, actual))
 
 @nottest
 def setup_nb_testing ():
@@ -71,4 +69,3 @@ def test_nb_dev_almost_there_accuracy ():
     actual = gtnlplib.scorer.accuracy (mat)
     expected = 0.5
     ok_ (expected < actual, msg="NOT_IN_RANGE Expected:%f, Actual:%f" %(expected, actual))
-

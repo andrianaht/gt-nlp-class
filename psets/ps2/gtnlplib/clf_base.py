@@ -5,20 +5,23 @@ from gtnlplib.preproc import dataIterator
 from gtnlplib.constants import ALL_LABELS
 from gtnlplib.constants import TESTKEY
 from gtnlplib.constants import DEVKEY
+from gtnlplib.constants import OFFSET
 from collections import defaultdict
 
 # use this to find the highest-scoring label
 argmax = lambda x : max(x.iteritems(),key=operator.itemgetter(1))[0]
 
+# TODO: How about neutrals for argmax
 # hide inner code
 # should return two outputs: the highest-scoring label, and the scores for all labels
-def predict(instance,weights,labels):
-    #YOUR CODE HERE
+def predict(instance, weights, labels):
     scores = defaultdict(int)
-    # print weights
-    for (label, word), weight in weights.iteritems():
-        scores[label] += instance.get(word, 0) * weight
+    for label in labels:
+        scores[label] = weights.get((label, OFFSET), 0)
+        for word, value in instance.iteritems():
+            scores[label] += weights.get((label, word), 0)*value
     return argmax(scores), scores
+
 
 def evalClassifier(weights,outfilename,testfile,test_mode=False):    
     with open(outfilename,'w') as outfile:

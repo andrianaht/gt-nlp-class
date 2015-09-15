@@ -29,14 +29,14 @@ def test_token_type_ratio_for_train ():
     TOLERANCE = 0.1
     actual = get_token_type_ratio (ac_train)
     expected = 13.1482
-    ok_ (abs (actual - expected) < TOLERANCE , msg = "OUT_OF_BOUND Expected:%f, Actual:%f" %(expected, actual))
+    ok_(abs(actual - expected) < TOLERANCE , msg = "OUT_OF_BOUND Expected:%f, Actual:%f" %(expected, actual))
 
 def test_token_type_ratio_for_dev ():
     """ Token to type ratio must be within acceptable limits"""
-    TOLERANCE = 0.1
+    TOLERANCE = 0.01
     actual = get_token_type_ratio (ac_dev)
     expected = 6.923
-    ok_ (abs (actual - expected) < 0.01 , msg = "OUT_OF_BOUND Expected:%f, Actual:%f" %(expected, actual))
+    ok_ (abs (actual - expected) < TOLERANCE , msg = "OUT_OF_BOUND Expected:%f, Actual:%f" %(expected, actual))
 
 def test_type_frequency_for_train ():
     """ Types occuring with certain frequency should match exactly"""

@@ -1,30 +1,31 @@
 import operator
 from  constants import *
 from collections import defaultdict, Counter
-from clf_base import predict, evalClassifier
+from clf_base import predict, evalClassifier, argmax
 import scorer
 
-argmax = lambda x : max(x.iteritems(), key=operator.itemgetter(1))[0]
 
 def oneItPerceptron(data_generator, weights, labels):
     errors = 0.
     num_insts = 0.
 
-    y_pred = defaultdict(int)
     for instance, label in data_generator:
+        y_pred = defaultdict(int)
         num_insts = num_insts + 1
-        for all_label in labels:
+        for lbl in labels:
             for word, value in instance.iteritems():
-                y_pred[all_label] += weights.get((all_label, word), 0)*value
+                y_pred[lbl] += weights.get((lbl, word), 0)*value
+
 
         label_pred = argmax(y_pred)
 
         if label_pred != label:
+            errors = errors + 1
+
             for word, value in instance.iteritems():
                 weights[(label, word)] = weights.get((label, word), 0) + value
                 weights[(label_pred, word)] = weights.get((label_pred, word), 0) - value
 
-            errors = errors + 1
 
     return weights, errors, num_insts
 
