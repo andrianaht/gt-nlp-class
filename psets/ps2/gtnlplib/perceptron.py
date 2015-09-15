@@ -10,21 +10,13 @@ def oneItPerceptron(data_generator, weights, labels):
     num_insts = 0.
 
     for instance, label in data_generator:
-        y_pred = defaultdict(int)
-        num_insts = num_insts + 1
-        for lbl in labels:
-            for word, value in instance.iteritems():
-                y_pred[lbl] += weights.get((lbl, word), 0)*value
-
-
-        label_pred = argmax(y_pred)
-
+        num_insts += 1
+        label_pred, scores = predict(instance, weights, labels)
         if label_pred != label:
-            errors = errors + 1
-
+            errors += 1
             for word, value in instance.iteritems():
-                weights[(label, word)] = weights.get((label, word), 0) + value
-                weights[(label_pred, word)] = weights.get((label_pred, word), 0) - value
+                weights[(label, word)] += value
+                weights[(label_pred, word)] -= value
 
 
     return weights, errors, num_insts

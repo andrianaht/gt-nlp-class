@@ -18,13 +18,9 @@ def trainAvgPerceptron(N_its,inst_generator,labels, outfile, devkey):
         for key, weight in weights.iteritems():
             avg_weights[key] = weights.get(key, 0) - wsum.get(key, 0)/tr_tot
 
-            import math
-            if math.isnan(avg_weights[key]) or avg_weights[key] == 'nan' or avg_weights[key] == 'inf':
-                print i, key, weights.get(key, 0), wsum.get(key, 0), tr_tot
-
         confusion = evalClassifier(avg_weights, outfile, devkey) #evaluate on dev data
         dv_acc[i] = scorer.accuracy(confusion) #compute accuracy
-        tr_acc[i] = 1. - (i+1)*tr_err/float(tr_tot) #compute training accuracy from output
+        tr_acc[i] = 1. - tr_err/float(tr_tot) #compute training accuracy from output
         print i, 'dev: ', dv_acc[i], 'train: ', tr_acc[i]
     return avg_weights, tr_acc, dv_acc
 
@@ -32,15 +28,8 @@ def oneItAvgPerceptron(inst_generator,weights,wsum,labels,Tinit=0):
     tr_err = 0.
 
     for instance, label in inst_generator:
-        Tinit = Tinit + 1
-        y_pred = defaultdict(int)
-
-        for all_label in labels:
-            for word, value in instance.iteritems():
-                y_pred[all_label] += weights.get((all_label, word), 0) * value
-
-        label_pred = argmax(y_pred)
-
+        Tinit += 1
+        label_pred, scores = predict(instance, weights, labels)
         if label_pred != label:
             for word, value in instance.iteritems():
                 # Compute running weight (W_T)
@@ -51,6 +40,6 @@ def oneItAvgPerceptron(inst_generator,weights,wsum,labels,Tinit=0):
                 weights[(label, word)] = weights.get((label, word), 0) + value
                 weights[(label_pred, word)] = weights.get((label_pred, word), 0) - value
 
-            tr_err = tr_err + 1
+            tr_err +=  1
 
     return weights, wsum, tr_err, Tinit
