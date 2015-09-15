@@ -50,4 +50,3 @@ def printScoreMessage(counts):
 
 if __name__ == "__main__":
     main()
-

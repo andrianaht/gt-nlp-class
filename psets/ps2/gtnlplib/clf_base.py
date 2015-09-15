@@ -5,25 +5,23 @@ from gtnlplib.preproc import dataIterator
 from gtnlplib.constants import ALL_LABELS
 from gtnlplib.constants import TESTKEY
 from gtnlplib.constants import DEVKEY
-from gtnlplib.constants import OFFSET
 from collections import defaultdict
+
 
 # use this to find the highest-scoring label
 argmax = lambda x : max(x.iteritems(),key=operator.itemgetter(1))[0]
 
-# TODO: How about neutrals for argmax
 # hide inner code
 # should return two outputs: the highest-scoring label, and the scores for all labels
 def predict(instance, weights, labels):
     scores = defaultdict(int)
     for label in labels:
-        scores[label] = weights.get((label, OFFSET), 0)
-        for word, value in instance.iteritems():
+        for word, value in instance.items():
             scores[label] += weights.get((label, word), 0)*value
     return argmax(scores), scores
 
 
-def evalClassifier(weights,outfilename,testfile,test_mode=False):    
+def evalClassifier(weights,outfilename,testfile,test_mode=False):
     with open(outfilename,'w') as outfile:
         for counts,label in dataIterator(testfile,test_mode): #iterate through eval set
             print >>outfile, predict(counts,weights,ALL_LABELS)[0] #print prediction to file
@@ -58,9 +56,8 @@ def generateKaggleSubmission(weights,outfilename):
             writer.writerow({
                 'Id': 'dev-{}'.format(i),
                 'Prediction': predictedIndex})
-    
+
     devAccuracy = float(devCorrect) / devTotal
     print 'Dev accuracy is ', devAccuracy, '({} correct of {})'.format(devCorrect, devTotal)
     print 'Kaggle submission saved to', outfilename, ('. Sanity check: '
         'public leaderboard accuracy should be '), devAccuracy, 'on submission.'
-

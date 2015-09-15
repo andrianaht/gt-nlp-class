@@ -43,7 +43,7 @@ def test_nb_likelihood_ratio ():
     pos_likelihood = predict (instance, weights_nb, ALL_LABELS)[1]["POS"]
     neg_likelihood = predict (instance, weights_nb, ALL_LABELS)[1]["NEG"]
     actual = neg_likelihood - pos_likelihood
-    assert_almost_equals(expected, actual, places=3, msg="UNEQUAL Expected:%f, Actual:%f" %(expected, actual))
+    assert_almost_equals (expected, actual, places=3, msg="UNEQUAL Expected:%f, Actual:%f" %(expected, actual))
 
 @nottest
 def setup_nb_testing ():
