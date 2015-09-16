@@ -29,7 +29,7 @@ def docsToBOWs(keyfile):
 
 def dataIterator(keyfile,test_mode=False):
     """
-    The dataIterator above incrementally re-reads the keyfile and BOW file every time you call it. 
+    The dataIterator above incrementally re-reads the keyfile and BOW file every time you call it.
     This is a good idea if you have huge data that won't fit in memory, but the file I/O involves some overhead.
     If you want, you can write a second dataIterator that iterates across data stored in memory, which
     will be faster.
@@ -41,11 +41,10 @@ def dataIterator(keyfile,test_mode=False):
                     label = 'UNK'
                 else:
                     textloc,label = keyline.rstrip().split(' ')
-
-                fcounts = {word:int(count) for word, count in\
-                           [ x.split(':') for x in bows.readline().rstrip().split(' ')]}
+                fcounts = {word:int(count) for word,count in\
+                           [x.split(':') for x in bows.readline().rstrip().split(' ')]}
                 fcounts[OFFSET] = 1
-                yield fcounts, label
+                yield fcounts,label
 
 def getAllCounts(datait):
     allcounts = Counter()

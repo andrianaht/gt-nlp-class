@@ -18,7 +18,6 @@ def oneItPerceptron(data_generator, weights, labels):
                 weights[(label, word)] += value
                 weights[(label_pred, word)] -= value
 
-
     return weights, errors, num_insts
 
 # this code trains the perceptron for N iterations on the supplied training data
