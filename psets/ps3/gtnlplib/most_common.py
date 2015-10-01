@@ -42,6 +42,8 @@ def get_most_common_weights(trainfile):
                 max_tag = tag
                 max_weight = tag_ctrs.get(tag, {}).get(word, 0)
         weights.update({(max_tag, word): max_weight})
+    most_uniq_tag = argmax({tag: len(item.values()) for tag, item in tag_ctrs.iteritems()})
+    weights.update({(most_uniq_tag, OFFSET): .001})
     return weights
 
 def get_class_counts(counters):

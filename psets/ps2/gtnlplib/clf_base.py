@@ -14,7 +14,7 @@ argmax = lambda x : max(x.iteritems(),key=operator.itemgetter(1))[0]
 # hide inner code
 # should return two outputs: the highest-scoring label, and the scores for all labels
 def predict(instance, weights, labels):
-    scores = defaultdict(int)
+    scores = defaultdict(float)
     for label in labels:
         for word, value in instance.items():
             scores[label] += weights.get((label, word), 0)*value

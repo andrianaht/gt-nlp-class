@@ -89,7 +89,8 @@ def trainLRbyAdaGrad(N_its,inst_generator, outfile, devkey, learning_rate=1e-4, 
 
             for word, value in inst.items():
                 weights[(true_label, word)] += num_inst * learning_rate * value / running_value.get((true_label, word), 1)
-                weights[(label_pred, word)] -= num_inst * probs[label_pred] * learning_rate * value / running_value.get((label_pred, word), 1)
+                for label in ALL_LABELS:
+                    weights[(label, word)] -= num_inst * probs[label] * learning_rate * value / running_value.get((label, word), 1)
                 running_value[(true_label, word)] = value**2
 
         # regularize all features at the end of each iteration

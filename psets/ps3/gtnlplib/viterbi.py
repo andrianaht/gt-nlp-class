@@ -37,22 +37,51 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
     output = [None] * len(words)
     best_score = -np.inf
 
-    prev_tag = START_TAG
     for k, word in enumerate(words):
-        trellis[k] = defaultdict(int)
-        recurrence = defaultdict(int)
-        prev = 0 if k == 0 else trellis[k-1]
-
-        #TODO: use best scores and poiters...
+        trellis[k] = defaultdict(lambda: -1000.)
+        pointers[k] = defaultdict(str)
         for tag in all_tags:
-            emission, transmission = feat_func(words, tag, prev_tag, k)
-            recurrence[(tag, prev_tag)] = weights.get(emission, 0) + weights.get(transmission, 0) + prev
+            temp = defaultdict(lambda: -1000.)
+            if k == 0:
+                prev_tag = START_TAG
+                emission, transmission = feat_func(words, tag, prev_tag, k)
+                trellis[k][tag] = weights[emission] + weights[transmission]
 
-        trellis[k] = max(recurrence.values())
-        output[k] = argmax(recurrence)[0]
-        prev_tag = output[k]
+                # if debug:
+                #     print "{} := q({}/{}) + e({}/{}) = {} {} = {}".\
+                #                 format(k+1, tag, prev_tag, word, tag, weights[transmission],weights[emission], trellis[k][tag])
 
-    best_score = trellis[-1] + weights.get((END_TAG, output[-1], TRANS), 0)
+            else:
+                for prev_tag in all_tags:
+                    emission, transmission = feat_func(words, tag, prev_tag, k)
+                    temp[prev_tag] = weights[emission] + weights[transmission] + trellis[k-1][prev_tag]
+
+                # if debug:
+                #     for prev_tag, val in temp.iteritems():
+                #         print "{} := q({}/{}) + e({}/{}) = {} {} {} = {}".\
+                #             format(k+1, tag, prev_tag, word, tag, weights[transmission],weights[emission], trellis[k-1][prev_tag], val)
+
+                trellis[k][tag] = max(temp.values())
+                pointers[k][tag] = argmax(temp)
+            # output[k] = argmax(trellis[k])
+
+        if debug:
+            print trellis[k]
+            print pointers[k]
+
+    # best_score = trellis[-1][output[-1]] + weights[(END_TAG, output[-1], TRANS)]
+    for tag in all_tags:
+        score = trellis[-1][tag] + weights[(END_TAG, tag, TRANS)]
+        if score > best_score:
+            output[-1] = tag
+            best_score = score
+
+    for i in range(len(words)-1, 0, -1):
+        output[i-1] = pointers[i][output[i]]
+
+
+
+
 
     return output, best_score
 
@@ -62,6 +91,12 @@ def get_HMM_weights(trainfile):
         trainfile -- The name of the file to train weights
         Returns:
         weights -- Weights dict with log-prob of transition and emit features
+
+        ngrams("I really like", 2)
+            (I, really)
+            (really, like)
+        (end_tag,'N',trans)  => q(stop/N) => (N, end_tag)
+        q(stop/N) = count(stop, N) / count(N)
         """
     # compute naive bayes weights
     counters = most_common.get_tags(trainfile)
@@ -82,15 +117,6 @@ def get_HMM_weights(trainfile):
     unigramCount = preproc.getAllCounts(unigram)
     bigramCount = preproc.getAllCounts(bigram)
 
-
-    """
-        ngrams("I really like", 2)
-        "I really like"
-            (I, really)
-            (really, like)
-        (end_tag,'N',trans)  => q(stop/N) => (N, end_tag)
-        q(stop/N) = count(stop, N) / count(N)
-    """
     for (tag1, tag2) in bigramCount.keys():
         hmm_weights[(tag2, tag1, TRANS)] = np.log(1.*bigramCount.get((tag1, tag2), 0)) - np.log(unigramCount.get(tag1, 0))
 

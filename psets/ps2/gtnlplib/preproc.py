@@ -13,7 +13,7 @@ def docsToBOWs(keyfile):
             for keyline in keys:
                 dataloc = keyline.rstrip().split(' ')[0]
                 dataloc = os.path.join (dirname, dataloc)
-                fcounts = defaultdict(int)
+                fcounts = defaultdict(float)
                 with open(dataloc, 'r') as infile:
                     for line in infile: 
                         decoded = line.decode('ascii','ignore')
@@ -41,9 +41,9 @@ def dataIterator(keyfile,test_mode=False):
                     label = 'UNK'
                 else:
                     textloc,label = keyline.rstrip().split(' ')
-                fcounts = {word:int(count) for word,count in\
+                fcounts = {word:float(count) for word,count in\
                            [x.split(':') for x in bows.readline().rstrip().split(' ')]}
-                fcounts[OFFSET] = 1
+                fcounts[OFFSET] = 1.
                 yield fcounts,label
 
 def getAllCounts(datait):
@@ -63,9 +63,9 @@ def loadInstances (trainkey, devkey):
 
 def getCountsAndKeys (trainkey):
     counts = defaultdict(lambda : Counter()) 
-    class_counts = defaultdict(int) 
+    class_counts = defaultdict(float)
     for words,label in dataIterator(trainkey):
         counts[label] += Counter(words)
-        class_counts[label] += 1
+        class_counts[label] += 1.
     allkeys = set(chain.from_iterable(count.keys() for count in counts.values()))
     return counts, class_counts, allkeys
