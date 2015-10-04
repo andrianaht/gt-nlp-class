@@ -36,7 +36,7 @@ def dataIterator(keyfile,test_mode=False):
     """
     with open(keyfile.replace('key','bow'),'r') as bows:
         with open(keyfile,'r') as keys:
-            for keyline in keys:
+        `    for keyline in keys:
                 if test_mode:
                     label = 'UNK'
                 else:
