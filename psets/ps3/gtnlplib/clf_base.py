@@ -19,4 +19,3 @@ def predict(instance,weights,labels):
     """
     scores = {label:sum([weights[(label,feat)]*count for feat,count in instance.iteritems()]) for label in labels}
     return argmax(scores),scores
-

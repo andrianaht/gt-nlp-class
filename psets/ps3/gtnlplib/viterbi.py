@@ -69,7 +69,6 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
             print trellis[k]
             print pointers[k]
 
-    # best_score = trellis[-1][output[-1]] + weights[(END_TAG, output[-1], TRANS)]
     for tag in all_tags:
         score = trellis[-1][tag] + weights[(END_TAG, tag, TRANS)]
         if score > best_score:
@@ -78,11 +77,6 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
 
     for i in range(len(words)-1, 0, -1):
         output[i-1] = pointers[i][output[i]]
-
-
-
-
-
     return output, best_score
 
 def get_HMM_weights(trainfile):

@@ -74,7 +74,7 @@ def test_nb_smoothing():
     the D
     cannons N
     '''
-    allwords = ['the', 'man', 'runs', 'the', 'cannons']
+    allwords = set(['the', 'man', 'runs', 'the', 'cannons'])
     wordCountsByTag = Counter({
         'D': Counter({'the': 2}),
         'N': Counter({'man': 1, 'cannons': 1}),
