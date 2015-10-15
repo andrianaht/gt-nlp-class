@@ -55,8 +55,10 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
                 pointers[k][tag] = argmax(temp)
 
         if debug:
-            print trellis[k]
-            print pointers[k]
+            print 'trellis  :', trellis[k]
+            print 'pointers :', pointers[k]
+            print
+            print
 
     for tag in all_tags:
         score = trellis[-1][tag] + weights[(END_TAG, tag, TRANS)]

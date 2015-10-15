@@ -4,7 +4,7 @@ from gtnlplib.tagger_base import evalTagger
 from gtnlplib import scorer
 from gtnlplib.viterbi import viterbiTagger
 from gtnlplib.features import seqFeatures
-from gtnlplib.constants import START_TAG
+from gtnlplib.constants import START_TAG, TRANS
 
 def oneItAvgStructPerceptron(inst_generator,
                              featfunc,
@@ -26,22 +26,32 @@ def oneItAvgStructPerceptron(inst_generator,
     """
     tr_err = 0.
     tr_tot = 0.
-      # your code
+    # your code
     for i,(words,y_true) in enumerate(inst_generator):
         y_pred, score = viterbiTagger(words, featfunc, weights, tagset)
-        if y_pred != y_true:
-            for i, word in enumerate(words):
-                prev_tag = y_pred[i-1] if i > 0 else START_TAG
-                seqFeatures(words,y_true[i],gtnlplib.features.wordTransFeatures)
-                for feat, value in featfunc(words, y_true[i], prev_tag, i).iteritems():
-                    wsum[feat] += Tinit*value
-                    weights[feat] += 1.*value
 
-                for feat,value in featfunc(words, y_pred[i], prev_tag, i).iteritems():
-                    wsum[feat] -= Tinit*value
-                    weights[feat] -= 1.*value
-            tr_err+=sum([y_pred[i] != y_true[i] for i, _ in enumerate(y_pred)])
-        Tinit += 1
+        # if i == 0:
+        #     print words
+        #     print 'pred', y_pred
+        #     print 'true', y_true
+
+        if y_pred != y_true:
+            for m in xrange(len(words)):
+                for feat, value in seqFeatures(words, y_true, featfunc).iteritems():
+                    wsum[feat] += (Tinit+i)*value
+                    weights[feat] += value
+
+                for feat,value in seqFeatures(words, y_pred, featfunc).iteritems():
+                    wsum[feat] -= (Tinit+i)*value
+                    weights[feat] -= value
+
+                    # if feat == (TRANS, '!', '!'):
+                    #     print i, words[m], feat, value
+                    #     print y_pred
+
+            tr_err+=sum([y_pred[m] != y_true[m] for m, _ in enumerate(y_pred)])
+
+        tr_tot += len(words)
 
     return weights, wsum, 1-tr_err/tr_tot, i
 

@@ -19,9 +19,12 @@ def wordFeatures(words,tag,prev_tag,m):
 def wordCharFeatures(words,tag,prev_tag,m):
     output = wordFeatures(words,tag,prev_tag,m) #start with the features from wordFeatures
     # add your code here
-    output[(CURR_SUFFIX, tag, words[m][-1])] = 1
+    if m < len(words):
+        output[(CURR_SUFFIX, tag, words[m][-1])] = 1
+
     if m > 0:
         output[(PREV_SUFFIX, prev_tag, words[m-1][-1])] = 1
+
     return output
 
 def yourFeatures(words,tag,prev_tag,m):
