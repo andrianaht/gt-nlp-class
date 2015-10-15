@@ -29,29 +29,16 @@ def oneItAvgStructPerceptron(inst_generator,
     # your code
     for i,(words,y_true) in enumerate(inst_generator):
         y_pred, score = viterbiTagger(words, featfunc, weights, tagset)
-
-        # if i == 0:
-        #     print words
-        #     print 'pred', y_pred
-        #     print 'true', y_true
-
         if y_pred != y_true:
-            for m in xrange(len(words)):
-                for feat, value in seqFeatures(words, y_true, featfunc).iteritems():
-                    wsum[feat] += (Tinit+i)*value
-                    weights[feat] += value
+            for feat, value in seqFeatures(words, y_true, featfunc).iteritems():
+                wsum[feat] += (Tinit+i)*value
+                weights[feat] += value
 
-                for feat,value in seqFeatures(words, y_pred, featfunc).iteritems():
-                    wsum[feat] -= (Tinit+i)*value
-                    weights[feat] -= value
-
-                    # if feat == (TRANS, '!', '!'):
-                    #     print i, words[m], feat, value
-                    #     print y_pred
-
-            tr_err+=sum([y_pred[m] != y_true[m] for m, _ in enumerate(y_pred)])
-
-        tr_tot += len(words)
+            for feat,value in seqFeatures(words, y_pred, featfunc).iteritems():
+                wsum[feat] -= (Tinit+i)*value
+                weights[feat] -= value
+            tr_err += 1
+        tr_tot += 1
 
     return weights, wsum, 1-tr_err/tr_tot, i
 
@@ -71,6 +58,7 @@ def trainAvgStructPerceptron(N_its,inst_generator,featfunc,tagset):
     for i in xrange(N_its):
         # your code here
         # note that I call evalTagger to produce the dev set results
+        # weights, wsum, tr_acc_i, tot = oneItAvgStructPerceptron(inst_generator,featfunc,weights,wsum,tagset,T)
         confusion = evalTagger(lambda words,tags : viterbiTagger(words,featfunc,avg_weights,tags)[0],'sp.txt')
         dv_acc[i] = scorer.accuracy(confusion)
         tr_acc[i] = tr_acc_i#1. - tr_err/float(sum([len(s) for s,t in inst_generator]))

@@ -23,7 +23,7 @@ def wordCharFeatures(words,tag,prev_tag,m):
         output[(CURR_SUFFIX, tag, words[m][-1])] = 1
 
     if m > 0:
-        output[(PREV_SUFFIX, prev_tag, words[m-1][-1])] = 1
+        output[(PREV_SUFFIX, tag, words[m-1][-1])] = 1
 
     return output
 
@@ -43,7 +43,7 @@ def seqFeatures(words,tags,featfunc):
     # your code here
     for m in xrange(len(words) + 1):
         prev_tag = tags[m-1] if m > 0 else START_TAG
-        tag = END_TAG if m >= len(words) else tags[m]
+        tag = END_TAG if m == len(words) else tags[m]
         for feat in featfunc(words, tag, prev_tag, m):
             allfeats[feat] += 1
 

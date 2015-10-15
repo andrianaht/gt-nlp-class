@@ -17,8 +17,8 @@ def oneItAvgPerceptron(inst_generator,featfunc,weights,wsum,tagset,Tinit=0):
     for i,(words,y_true) in enumerate(inst_generator):
         # your code here
         y_pred = classifierTagger(words, featfunc, weights, tagset)
-        if y_pred != y_true:
-            for m in xrange(len(words)):
+        for m in xrange(len(words)):
+            if y_pred[m] != y_true[m]:
                 prev_tag_pred = y_pred[m-1] if m > 0 else START_TAG
                 prev_tag_true = y_true[m-1] if m > 0 else START_TAG
 
@@ -29,11 +29,8 @@ def oneItAvgPerceptron(inst_generator,featfunc,weights,wsum,tagset,Tinit=0):
                 for feat, value in featfunc(words, y_pred[m], prev_tag_pred, m).iteritems():
                     wsum[feat] -= (Tinit+i)*value
                     weights[feat] -= 1.*value
+                tr_err += 1
 
-                # if i == 0 and words[m] == 'predict':
-                #     print y_pred[m], featfunc(words, y_true[m], prev_tag, m)
-
-            tr_err+=sum([y_pred[j] != y_true[j] for j, _ in enumerate(y_pred)])
     # note that i'm computing tr_acc for you, as long as you properly update tr_err
     return weights, wsum, 1.-tr_err / float(sum([len(s) for s,t in inst_generator])), i
 

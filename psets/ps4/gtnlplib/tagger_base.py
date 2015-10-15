@@ -23,11 +23,6 @@ def classifierTagger(words,featfunc,weights,all_tags):
             prev_tag = out[m-1] if m > 0 else START_TAG
             for feat, value in featfunc(words,tag,prev_tag,m).iteritems():
                 scores[tag] += weights[feat]*value
-
-                # if m == 1 and tag == 'V':
-                #     print feat, value
-
-        # print words[m], scores, "\n"
         out[m] = argmax(scores)
     return out
 
