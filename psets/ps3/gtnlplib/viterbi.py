@@ -43,9 +43,9 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
         for tag in all_tags:
             temp = defaultdict(lambda: -1000.)
             if k == 0:
-                prev_tag = START_TAG
-                emission, transmission = feat_func(words, tag, prev_tag, k)
-                trellis[k][tag] = weights[emission] + weights[transmission]
+                # prev_tag = START_TAG
+                # emission, transmission = feat_func(words, tag, prev_tag, k)
+                trellis[k][tag] = sum([weights[feat] for feat in feat_func(words, tag, START_TAG, k)])
 
                 # if debug:
                 #     print "{} := q({}/{}) + e({}/{}) = {} {} = {}".\
@@ -53,8 +53,8 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
 
             else:
                 for prev_tag in all_tags:
-                    emission, transmission = feat_func(words, tag, prev_tag, k)
-                    temp[prev_tag] = weights[emission] + weights[transmission] + trellis[k-1][prev_tag]
+                    # emission, transmission = feat_func(words, tag, prev_tag, k)
+                    temp[prev_tag] = sum([weights[feat] for feat in feat_func(words, tag, prev_tag, k)])+trellis[k-1][prev_tag]
 
                 # if debug:
                 #     for prev_tag, val in temp.iteritems():

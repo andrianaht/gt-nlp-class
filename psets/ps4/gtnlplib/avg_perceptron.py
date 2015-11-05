@@ -24,11 +24,11 @@ def oneItAvgPerceptron(inst_generator,featfunc,weights,wsum,tagset,Tinit=0):
 
                 for feat, value in featfunc(words, y_true[m], prev_tag_true, m).iteritems():
                     wsum[feat] += (Tinit+i)*value
-                    weights[feat] += 1.*value
+                    weights[feat] += value
 
                 for feat, value in featfunc(words, y_pred[m], prev_tag_pred, m).iteritems():
                     wsum[feat] -= (Tinit+i)*value
-                    weights[feat] -= 1.*value
+                    weights[feat] -= value
                 tr_err += 1
 
     # note that i'm computing tr_acc for you, as long as you properly update tr_err

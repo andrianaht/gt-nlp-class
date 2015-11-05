@@ -40,28 +40,22 @@ def viterbiTagger(words,feat_func,weights,all_tags,debug=False):
         for tag in all_tags:
             temp = defaultdict(lambda: -1000.)
             if k == 0:
-                prev_tag = START_TAG
-                trellis[k][tag] = sum([weights[feat] for feat in feat_func(words, tag, prev_tag, k)])
+                trellis[k][tag] = sum([weights[feat]*value for feat, value in feat_func(words, tag, START_TAG, k).iteritems()])
             else:
                 for prev_tag in all_tags:
-                    temp[prev_tag] = sum([weights[feat] for feat in feat_func(words, tag, prev_tag, k)])+trellis[k-1][prev_tag]
-
-                # if debug:
-                #     for prev_tag, val in temp.iteritems():
-                #         print "{} := q({}/{}) + e({}/{}) = {} {} {} = {}".\
-                #             format(k+1, tag, prev_tag, word, tag, weights[transmission],weights[emission], trellis[k-1][prev_tag], val)
+                    temp[prev_tag] = sum([weights[feat]*value for feat, value in feat_func(words, tag, prev_tag, k).iteritems()])+trellis[k-1][prev_tag]
 
                 trellis[k][tag] = max(temp.values())
                 pointers[k][tag] = argmax(temp)
 
-        if debug:
-            print 'trellis  :', trellis[k]
-            print 'pointers :', pointers[k]
-            print
-            print
+        # if debug:
+        #     print 'trellis  :', trellis[k]
+        #     print 'pointers :', pointers[k]
+        #     print
+        #     print
 
     for tag in all_tags:
-        score = trellis[-1][tag] + weights[(END_TAG, tag, TRANS)]
+        score = trellis[-1][tag] + sum([weights[feat]*value for feat, value in feat_func(words, END_TAG, tag, k).iteritems()])
         if score > best_score:
             output[-1] = tag
             best_score = score

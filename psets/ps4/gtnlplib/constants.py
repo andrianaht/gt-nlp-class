@@ -16,3 +16,7 @@ EMIT = '--EMISSION--'
 
 CURR_SUFFIX = '--curr-suff--'
 PREV_SUFFIX = '--prev-suff--'
+
+
+CURR_PREFFIX = '--curr--pref--'
+ADJ_TAG = '--adj-tag--'

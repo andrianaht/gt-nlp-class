@@ -43,8 +43,17 @@ def evalTagger(tagger,outfilename,testfile=DEV_FILE):
         for tag in tags:
             alltags.add(tag)
     with open(outfilename,'w') as outfile:
-        for words,_ in preproc.conllSeqGenerator(testfile):
+        for words, y_true in preproc.conllSeqGenerator(testfile):
             pred_tags = tagger(words,alltags)
+
+            # if y_true != pred_tags:
+            #     for x, tag in enumerate(pred_tags):
+            #         if tag != y_true[x] and tag == 'N' and y_true[x] == '^':
+            #             print ' '.join(words)
+            #             print 'true', y_true
+            #             print 'pred', pred_tags
+            #             print
+
             for tag in pred_tags:
                 print >>outfile, tag
             print >>outfile, ""
