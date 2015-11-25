@@ -28,8 +28,6 @@ class DependencyReader():
         self.train_instances = []
         self.test_instances = []
 
-        # Just added
-        self._pos_dict = {}
 
     def loadInstances(self,filename):
         instances = []
@@ -126,3 +124,42 @@ class DependencyReader():
         ### Load training data
         self.train_instances = self.loadInstances(path.join(base_deppars_dir, language+"_train.conll"))
         self.test_instances = self.loadInstances(path.join(base_deppars_dir, language+"_dev.conll"))
+
+
+    def key2tag(self):
+        return {val: key for key, val in self.pos_dict.iteritems()}
+
+
+    def getVocabulary(self,filename):
+        instances = []
+        inst = Instance()
+        inst.words.append(self.word_dict["__START__"])
+        with open(filename,'r') as conll_file:
+            for line in conll_file:
+                line = line.rstrip()
+                if len(line) == 0:
+                    instances.append(inst)
+                    inst = Instance()
+                    inst.words.append(self.word_dict["__START__"])
+                    inst.pos.append(self.pos_dict["__START__"])
+                    inst.heads.append(-1)
+                    continue
+                fields = line.split("\t")
+
+                word = fields[1]
+                pos = fields[3]
+                head = int(fields[6])
+
+                if word not in self.word_dict:
+                    word_id = -1
+                else:
+                    word_id = self.word_dict[word]
+                if pos not in self.pos_dict:
+                    pos_id = -1
+                else:
+                    pos_id = self.pos_dict[pos]
+
+                inst.words.append(word_id)
+                inst.pos.append(pos_id)
+                inst.heads.append(head)
+        return(instances)

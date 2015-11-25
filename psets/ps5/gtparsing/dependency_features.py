@@ -88,3 +88,9 @@ class DependencyFeatures(object):
         return scores
 
 
+    """
+     Lookup the word
+    """
+    def lookup_word(self, word_idx):
+        return self.word_dict.get(word_idx, '')
+

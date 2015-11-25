@@ -1,25 +1,60 @@
-from collections import defaultdict
-
-def top(confusion, dp, n=10):
-    sconfusion = sorted(confusion.items(), key=lambda x: x[1], reverse=True)[:n]
-
-    print dp.reader.pos_dict
-    for ((key_tag, key_res), val) in sconfusion[:n]:
-        print key_tag, key_res
+from collections import defaultdict, OrderedDict
 
 
+# ( True, Pred )
 def getConfusion (keyfile, resfile):
-    counts = defaultdict(int)
     with open (keyfile) as kfile, open (resfile) as rfile:
-        for keyline in kfile:
-            resline = rfile.readline ()
-            keyparts = keyline.split ()
-            resparts = resline.split ()
-            if len (keyparts) > 1 and len (resparts) > 1:
-                key_tag = keyparts[6].rstrip()
-                res_tag = resparts[6].rstrip()
-                counts[tuple((key_tag,res_tag))] += 1
-    return (counts)
+        kfiles = kfile.read().split('\n''\n')
+        rfiles = rfile.read().split('\n''\n')
+        confusion = defaultdict(int)
+        for i, ksent1 in enumerate(kfiles):
+            ksent = ksent1.split('\n')
+            rsent = rfiles[i].split('\n')
+            for j, keyline in enumerate(ksent):
+                resline = rsent[j]
+                keyparts = keyline.split ()
+                resparts = resline.split ()
+                if len (keyparts) > 1 and len (resparts) > 1:
+                    key_tag = int(keyparts[6].rstrip())
+                    res_tag = int(resparts[6].rstrip())
+                    key_tag = ksent[key_tag-1].split()[3].rstrip() if key_tag > 0 else keyparts[3].rstrip()
+                    res_tag = rsent[res_tag-1].split()[3].rstrip() if res_tag > 0 else resparts[3].rstrip()
+                    confusion[tuple((key_tag,res_tag))] += 1
+
+    return confusion
+
+
+def getStatistics(keyfile, resfile, n=10):
+    confusion = getConfusion(keyfile, resfile)
+    correct = defaultdict(float)
+    error  = defaultdict(float)
+    correctDist = defaultdict(float)
+    errorDist = defaultdict(float)
+    # for tag in alltags:
+    for (true, pred), value in confusion.iteritems():
+        if pred == true:
+            correct[true] += value
+        else:
+            error[true] += value
+
+    for tag, value in correct.iteritems():
+        correctDist[tag] = correct[tag]/(correct[tag]+error[tag])
+
+    for tag, value in error.iteritems():
+        errorDist[tag] = error[tag]/(correct[tag]+error[tag])
+
+    best = OrderedDict(sorted(correctDist.items(), key=lambda t: t[1], reverse=True)[:n])
+    worst = OrderedDict(sorted(errorDist.items(), key=lambda t: t[1], reverse=True)[:n])
+
+    print '----- Best prediction -----'
+    for key, value in best.iteritems():
+        print key, value, correct[key]
+
+    print
+    print '---- Worst Prediction ----'
+    for key, value in worst.iteritems():
+        print key, value, error[key]
+    return best, worst
 
 
 def printScoreMessage(counts):

@@ -16,7 +16,7 @@ def CPT (instances, htag):
     output = defaultdict(float)
     for instance in instances:
         for i, head in enumerate(instance.heads):
-            if instance.pos[head] == htag:
+            if instance.pos[head] == htag and i != 0:
                 output[instance.pos[i]] += 1
     return {key: value/sum(output.values()) for key, value in output.iteritems()}
 
