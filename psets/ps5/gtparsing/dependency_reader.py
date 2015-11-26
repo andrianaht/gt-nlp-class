@@ -65,7 +65,7 @@ class DependencyReader():
                 inst.heads.append(head)
         return(instances)
 
-    def load(self, language):
+    def load(self, language, training_size=-1):
         '''Loads training and test data for dependency parsing.''' 
         self.word_dict = {}
         self.pos_dict = {}
@@ -99,6 +99,10 @@ class DependencyReader():
         pos_id+=1
 
         for line in conll_file:
+
+            if n_sents != -1 and n_sents >= training_size:
+                break
+
             line = line.rstrip()
             if len(line) == 0:
                 n_sents+=1
@@ -123,6 +127,8 @@ class DependencyReader():
 
         ### Load training data
         self.train_instances = self.loadInstances(path.join(base_deppars_dir, language+"_train.conll"))
+        if training_size != -1:
+            self.train_instances  = self.train_instances[:training_size]
         self.test_instances = self.loadInstances(path.join(base_deppars_dir, language+"_dev.conll"))
 
 

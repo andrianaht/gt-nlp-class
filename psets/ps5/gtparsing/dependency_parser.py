@@ -25,9 +25,9 @@ class DependencyParser():
         self.writer = DependencyWriter()
         self.features = feature_function # DependencyFeatures()
 
-    def read_data(self, language):
+    def read_data(self, language, training_size = -1):
         self.language = language
-        self.reader.load(language)
+        self.reader.load(language, training_size)
         #self.features.word_dict = dict ((num,word) for (word,num) in self.reader.word_dict.iteritems())
         self.features.word_dict = {num:word for word,num in self.reader.word_dict.iteritems()}
         self.features.create_dictionary(self.reader.train_instances)
@@ -64,7 +64,7 @@ class DependencyParser():
         for f in pred_feats:
             self.weights[f] -= 1.0
 
-    def train_perceptron(self, n_epochs):
+    def train_perceptron(self, n_epochs, verbose=False):
         '''Trains the parser by running the averaged perceptron algorithm for n_epochs.''' 
         self.weights = np.zeros(self.features.n_feats)
         total = np.zeros(self.features.n_feats)
@@ -76,21 +76,24 @@ class DependencyParser():
             self.trained = True
         
         for epoch in range(n_epochs):
-            print "Epoch {0}".format(epoch+1),
-            print "Train:",
-            print "%.3f" % self.evalInstances(self.reader.train_instances,self.perceptron_update),
+            if verbose:
+                print "Epoch {0}".format(epoch+1),
+                print "Train:",
+                print "%.3f" % self.evalInstances(self.reader.train_instances,self.perceptron_update),
             total += self.weights   
-            print "Dev:",
+            # print "Dev:",
 
             #weight averaging
             old_weights = self.weights.copy()
             self.weights = total.copy() / (epoch + 1.0)
-            print "%.3f" % self.evalInstances(self.reader.test_instances)
+            if verbose:
+                print "%.3f" % self.evalInstances(self.reader.test_instances)
             
             #return the weights
             self.weights = old_weights
             
         self.weights = total.copy() / (epoch + 1.0)
+        return self.evalInstances(self.reader.train_instances,self.perceptron_update), self.evalInstances(self.reader.test_instances)
 
     def evaluate(self):
         '''Evaluates with the weights that have been learnt'''  
