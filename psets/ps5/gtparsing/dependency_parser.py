@@ -76,24 +76,26 @@ class DependencyParser():
             self.trained = True
         
         for epoch in range(n_epochs):
+            tr_acc = self.evalInstances(self.reader.train_instances,self.perceptron_update),
             if verbose:
                 print "Epoch {0}".format(epoch+1),
                 print "Train:",
-                print "%.3f" % self.evalInstances(self.reader.train_instances,self.perceptron_update),
+                print "%.3f" % tr_acc,
+                print "Dev:",
             total += self.weights   
-            # print "Dev:",
 
             #weight averaging
             old_weights = self.weights.copy()
             self.weights = total.copy() / (epoch + 1.0)
+            dv_acc = self.evalInstances(self.reader.test_instances)
             if verbose:
-                print "%.3f" % self.evalInstances(self.reader.test_instances)
-            
+                print "%.3f" % dv_acc
+
             #return the weights
             self.weights = old_weights
             
         self.weights = total.copy() / (epoch + 1.0)
-        return self.evalInstances(self.reader.train_instances,self.perceptron_update), self.evalInstances(self.reader.test_instances)
+        return tr_acc, dv_acc
 
     def evaluate(self):
         '''Evaluates with the weights that have been learnt'''  

@@ -53,8 +53,10 @@ class LexDistFeats2(LexDistFeats):
     def create_arc_features(self,instance,h,m,add=False):
         ff = super(LexDistFeats2, self).create_arc_features(instance, h, m, add)
         k = len(ff)
-        f = self.getF((k, instance.pos[m], instance.words[h]), add)
-        ff.append(f)
+        mtag = instance.pos[m]
+        if mtag > 0:
+            f = self.getF((k, mtag, instance.words[h]), add)
+            ff.append(f)
         return ff
 
 
@@ -64,8 +66,11 @@ class ContextFeats(LexDistFeats2):
     def create_arc_features(self,instance,h,m,add=False):
         ff = super(ContextFeats, self).create_arc_features(instance, h, m, add)
         k = len(ff)
-        if h > 1:
-            f = self.getF((k, instance.pos[h], instance.pos[h-1], instance.pos[m]), add)   # 49740, 0.800
+        htag = instance.pos[h]
+        phtag = instance.pos[h-1]
+        mtag = instance.pos[m]
+        if h > 1 and htag > 0 and phtag > 0 and mtag > 0:
+            f = self.getF((k, htag, instance.pos[h-1], instance.pos[m]), add)   # 49740, 0.800
             ff.append(f)
 
         if m < len(instance.words)-1:
@@ -88,13 +93,17 @@ class BakeoffFeats(ContextFeats):
         # Martha -> laughs
         hdword = self.lookup_word(h)
         # dpword = self.lookup_word(h)
-        feat = hdword[-1:]    # 0.585
-        f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
-        ff.append(f)
-        #
-        feat = hdword[-2:]    # 0.599
-        f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
-        ff.append(f)
+        mtag = instance.pos[m]
+        htag = instance.pos[h]
+
+        if htag > 0 and mtag > 0:
+            feat = hdword[-1:]    # 0.585
+            f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
+            ff.append(f)
+
+            feat = hdword[-2:]    # 0.599
+            f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
+            ff.append(f)
 
         return ff
 
