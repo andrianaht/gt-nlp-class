@@ -87,11 +87,11 @@ class BakeoffFeats(ContextFeats):
         # Morphological Features
         # Martha -> laughs
         hdword = self.lookup_word(h)
-        dpword = self.lookup_word(h)
+        # dpword = self.lookup_word(h)
         feat = hdword[-1:]    # 0.585
         f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
         ff.append(f)
-
+        #
         feat = hdword[-2:]    # 0.599
         f = self.getF((len(ff), instance.pos[m], instance.pos[h], feat), add)
         ff.append(f)
